@@ -1,0 +1,52 @@
+<?php
+$pagina=1;
+
+if(isset($_GET['pagina'])){
+    $pagina = filter_input(INPUT_GET, "pagina", FILTER_VALIDATE_INT);
+    if(!$pagina){ $pagina =  1; }
+}
+
+$limite = 4;
+
+$inicio = ($pagina * $limite) - $limite;
+
+//intanciando uma conexão PDO com o SQL
+$con = new PDO("mysql:host=localhost;dbname=videos","root","1234");
+
+$registros = $con->query("SELECT COUNT(nome) count FROM contato")->fetch()["count"];
+
+$paginas = ceil($registros / $limite);
+
+$result = $con->query("SELECT nome FROM contato ORDER BY nome LIMIT $inicio, $limite")->fetchAll(); 
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Páginação simples com PHP</title>
+</head>
+<body>
+    <ul>
+        <?php foreach($result as item):?>
+            <li><?=$item['nome']?></li>
+        <?php endforeach;?>
+    </ul>
+
+    <a href="?pagina=1">Primeira</a>
+    
+    <?php if($pagina>1):?>
+        <a href="?pagina=<?=$pagina-1?>"><<</a>
+    <?php endif;?>
+
+    <?=$pagina?>
+    
+    <?php if ($pagina<$paginas):?>
+        <a href="?pagina=<?=$pagina+1?>">>></a>
+    <?php endif;?>
+
+    <a href="?pagina=<?=$paginas?>">ultima</a>
+
+</body>
+</html>
